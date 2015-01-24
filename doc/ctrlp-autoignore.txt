@@ -1,0 +1,85 @@
+*ctrlp-autoignore.txt*
+*CtrlPAutoIgnore* *'ctrlp-autoignore'*
+===============================================================================
+
+    CtrlP
+    AUTO-IGNORE
+
+    Ignore stuff only for some stuff
+
+
+1. Intro                            |ctrlp-autoignore-intro|
+2. Installation                     |ctrlp-autoignore-installation|
+3. Options                          |ctrlp-autoignore-options|
+4. Ignore File Syntax               |ctrlp-autoignore-syntax|
+5. F.A.Q.                           |ctrlp-autoignore-faq|
+
+===============================================================================
+INTRO                                           *ctrlp-autoignore-intro*
+
+This extension for the CtrlP plugin adds support for a `.ctrlpignore` file
+located at the root of your project. This file will be read when CtrlP
+initializes, and any patterns found in it will be excluded from search
+results. It's basically like `.gitignore` or `.hgignore` but for CtrlP.
+
+|CtrlPAutoIgnore| requires a recent version of CtrlP that supports custom
+filtering functions. The original CtrlP project has been inactive since its
+autor mysteriously disappeared, and won't support that feature.  You'll have
+to switch to the new official (and active!) repository here:
+https://github.com/ctrlpvim/ctrlp.vim.
+
+===============================================================================
+INSTALLATION                                    *ctrlp-autoignore-installation*
+
+To install this plugin, add its files to somewhere Vim will find them. It's
+recommended you use something like Pathogen or Vundle.
+
+Then, activate it like any other CtrlP extension. For instance, in your:
+
+  let g:ctrlp_extensions = ['autoignore']
+
+For more information, see |ctrlp-extensions|.
+
+===============================================================================
+OPTIONS                                         *ctrlp-autoignore-options*
+
+|CtrlPAutoIgnore| doesn't have any options.
+
+===============================================================================
+IGNORE FILE SYNTAX                              *ctrlp-autoignore-syntax*
+
+|CtrlPAutoIgnore| will load any `.ctrlpignore` file located at the root of the
+current CtrlP project (as defined by |g:ctrlp_root_markers|, among other
+things).
+
+Empty lines, and lines starting with `#` (comments) are ignored.
+
+Other lines are treated like patterns. The syntax must be glob-like, i.e.
+wildcards (`*`) are supported. Anything that matches any of the patterns will
+be ignored from CtrlP's search results.
+
+Pattern should use forward slashes, even on Windows.
+
+===============================================================================
+FREQUENTLY ASKED QUESTIONS                      *ctrlp-autoignore-faq*
+
+Q: Why can't |CtrlPAutoIgnore| support `.gitignore` or `.hgignore` natively?
+
+A: Those files look at first like they may contain all the patterns you'd want
+to exclude from CtrlP already. However, more often than not, there are some
+differences. Those files list patterns that should not be included in
+source-control. This includes things you want to ignore, but also things you
+may not want to: local settings, external packages and dependencies, etc. The
+author felt the trouble of supporting various syntaxes was too much compared
+to just copy/pasting a few lines. Freel free to contribute a patch if you
+disagree :)
+
+Q: I enabled |CtrlPAutoIgnore|, or edited `.ctrlpignore`, but none of the new
+patterns are working. What did I do wrong?
+
+A: Probably nothing! CtrlP can cache search results for faster response times.
+You can hit <F5> to force it to refresh. This will use the newer ignore
+patterns.
+
+===============================================================================
+vim:ft=help:et:ts=2:sw=2:sts=2:norl

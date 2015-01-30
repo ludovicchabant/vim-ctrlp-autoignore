@@ -30,6 +30,7 @@ if !exists('g:ctrlp_custom_ignore')
 endif
 let g:ctrlp_custom_ignore['func'] = 'ctrlp#autoignore#ignore'
 let g:ctrlp_custom_ignore['func-init'] = 'ctrlp#autoignore#ignore_init'
+let g:ctrlp_custom_ignore['func-close'] = 'ctrlp#autoignore#ignore_close'
 
 " }}}
 
@@ -42,7 +43,11 @@ function! s:trace(message) abort
 endfunction
 
 let s:proj_cache = {}
+let s:active_cwd = ''
+let s:active_cwd_len = 0
 let s:active_patterns = []
+let s:changed_wildignore = 0
+let s:prev_wildignore = ''
 
 function! s:load_project_patterns(root_dir) abort
     let l:ign_path = a:root_dir . '/.ctrlpignore'
@@ -50,16 +55,29 @@ function! s:load_project_patterns(root_dir) abort
         call s:trace("No pattern file at: " . l:ign_path)
         return []
     endif
+    let l:cursyntax = 'regexp'
+    let l:knownsyntaxes = ['regexp', 'wildignore']
     let l:patterns = []
     let l:lines = readfile(l:ign_path)
     for line in l:lines
+        " Comment line?
         if match(line, '\v^\s*$') >= 0 || match(line, '\v^\s*#') >= 0
             continue
         endif
+        " Syntax change?
+        let l:matches = matchlist(line, '\v^syntax:\s?(\w+)\s*$')
+        if len(l:matches) > 0
+            let l:cursyntax = l:matches[1]
+            if index(l:knownsyntaxes, l:cursyntax) < 0
+                echoerr "ctrlp_autoignore: Unknown syntax '".l:cursyntax."' in: ".l:ign_path
+            endif
+            continue
+        endif
+        " Patterns!
         let l:matches = matchlist(line, '\v^((dir|file|link)\:)?(.*)')
         let l:mtype = l:matches[2]
         let l:mpat = l:matches[3]
-        call add(l:patterns, {'type': l:mtype, 'pat': l:mpat})
+        call add(l:patterns, {'syn': l:cursyntax, 'type': l:mtype, 'pat': l:mpat})
     endfor
     call s:trace("Loaded " . len(l:patterns) . " patterns from: " . l:ign_path)
     return l:patterns
@@ -80,10 +98,14 @@ endfunction
 " The custom ignore function that CtrlP will be using in addition to
 " normal pattern-based matching.
 function! ctrlp#autoignore#ignore(item, type) abort
+    let l:cnv_item = tr(strpart(a:item, s:active_cwd_len), "\\", "/")
     for pat in s:active_patterns
+        if pat['syn'] != 'regexp'
+            continue
+        endif
         if pat['type'] == '' || pat['type'] == a:type
-            let l:cnv_item = tr(a:item, "\\", "/")
             if match(l:cnv_item, pat['pat']) >= 0
+                call s:trace("Ignoring ".l:cnv_item." because of ".pat['pat'])
                 return 1
             endif
         endif
@@ -93,7 +115,31 @@ endfunction
 
 function! ctrlp#autoignore#ignore_init() abort
     let l:root = getcwd()
+    let s:active_cwd = l:root
+    " len+1 is for including the next separator after the root.
+    let s:active_cwd_len = len(l:root) + 1
     let s:active_patterns = s:get_project_patterns(l:root)
+    call s:trace("Got ".len(s:active_patterns)." patterns for ".l:root)
+
+    let s:changed_wildignore = 0
+    let s:prev_wildignore = &wildignore
+    for pat in s:active_patterns
+        if pat['syn'] == 'wildignore'
+            execute 'set wildignore+='.pat['pat']
+            let s:changed_wildignore = 1
+        endif
+    endfor
+    if s:changed_wildignore
+        call s:trace("Set wildignore to ".&wildignore)
+    endif
+endfunction
+
+function! ctrlp#autoignore#ignore_close() abort
+    if s:changed_wildignore
+        execute 'set wildignore='.s:prev_wildignore
+        let s:prev_wildignore = ''
+        call s:trace("Set wildignore back to ".&wildignore)
+    endif
 endfunction
 
 " List patterns for a given project's root.

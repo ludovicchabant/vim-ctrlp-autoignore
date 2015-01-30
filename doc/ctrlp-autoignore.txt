@@ -28,6 +28,9 @@ autor mysteriously disappeared, and won't support that feature.  You'll have
 to switch to the new official (and active!) repository here:
 https://github.com/ctrlpvim/ctrlp.vim.
 
+NOTE: Currently, |CtrlPAutoIgnore| won't work if you're using a custom file
+listing command (see |g:ctrlp_user_command|).
+
 ===============================================================================
 INSTALLATION                                    *ctrlp-autoignore-installation*
 
@@ -54,11 +57,17 @@ things).
 
 Empty lines, and lines starting with `#` (comments) are ignored.
 
-Other lines are treated like patterns. The syntax must be glob-like, i.e.
-wildcards (`*`) are supported. Anything that matches any of the patterns will
-be ignored from CtrlP's search results.
+Other lines are treated like regular expression patterns. See *string-match*
+for how patterns are used. Anything that matches any of the patterns will be
+ignored from CtrlP's search results.
 
-Pattern should use forward slashes, even on Windows.
+Example:
+
+  \.tmp$
+  ^generated/
+  local\.cfg
+
+NOTE: Patterns should use forward slashes, even on Windows.
 
 ===============================================================================
 FREQUENTLY ASKED QUESTIONS                      *ctrlp-autoignore-faq*

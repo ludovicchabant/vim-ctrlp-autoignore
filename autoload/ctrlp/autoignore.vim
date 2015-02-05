@@ -32,6 +32,11 @@ let g:ctrlp_custom_ignore['func'] = 'ctrlp#autoignore#ignore'
 let g:ctrlp_custom_ignore['func-init'] = 'ctrlp#autoignore#ignore_init'
 let g:ctrlp_custom_ignore['func-close'] = 'ctrlp#autoignore#ignore_close'
 
+if !exists('g:ctrlp_root_markers')
+    let g:ctrlp_root_markers = []
+endif
+call add(g:ctrlp_root_markers, '.ctrlpignore')
+
 " }}}
 
 " Internals {{{

@@ -43,6 +43,9 @@ Then, activate it like any other CtrlP extension. For instance, in your:
 
 For more information, see |ctrlp-extensions|.
 
+Note: |CtrlPAutoIgnore| will add `.ctrlpignore` to |g:ctrlp_root_markers| so
+it's used as a root marker.
+
 ===============================================================================
 OPTIONS                                         *ctrlp-autoignore-options*
 

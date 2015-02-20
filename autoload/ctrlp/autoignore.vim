@@ -7,6 +7,12 @@
 
 " Global Settings {{{
 
+if exists('g:ctrlp_autoignore_loaded') && g:ctrlp_autoignore_loaded
+            \ && !g:ctrlp_autoignore_debug
+    finish
+endif
+let g:ctrlp_autoignore_loaded = 1
+
 if !exists('g:ctrlp_autoignore_debug')
     let g:ctrlp_autoignore_debug = 0
 endif
@@ -14,12 +20,6 @@ endif
 if !exists('g:ctrlp_autoignore_trace')
     let g:ctrlp_autoignore_trace = 0
 endif
-
-if exists('g:ctrlp_autoignore_loaded') && g:ctrlp_autoignore_loaded
-            \ && !g:ctrlp_autoignore_debug
-    finish
-endif
-let g:ctrlp_autoignore_loaded = 1
 
 " }}}
 
